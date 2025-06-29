@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexión Interna - Bienestar Emocional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom animations for breathing exercise */
+        @keyframes breatheIn {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.5); }
+        }
+        @keyframes breatheOut {
+            0% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+        .breathe-in {
+            animation: breatheIn 4s ease-in-out forwards;
+        }
+        .breathe-hold {
+            transform: scale(1.5);
+        }
+        .breathe-out {
+            animation: breatheOut 8s ease-in-out forwards;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Fade transitions */
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-blue-50 to-purple-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mr-3">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Conexión Interna</h1>
+            </div>
+            <nav class="flex space-x-4">
+                <button onclick="showSection('diario')" class="px-3 py-2 rounded-lg hover:bg-blue-100 transition">
+                    <i class="fas fa-book-open mr-1"></i> Diario
+                </button>
+                <button onclick="showSection('respira')" class="px-3 py-2 rounded-lg hover:bg-blue-100 transition">
+                    <i class="fas fa-wind mr-1"></i> Respira
+                </button>
+                <button onclick="showSection('emergencia')" class="px-3 py-2 rounded-lg hover:bg-blue-100 transition">
+                    <i class="fas fa-life-ring mr-1"></i> Emergencia
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Diary Section -->
+            <section id="diario-section" class="bg-white rounded-xl shadow-md p-6 mb-8 transition-all duration-300">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-book-open text-blue-500 mr-2"></i> Diario Emocional
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Mood Entry Form -->
+                    <div class="bg-blue-50 rounded-lg p-5">
+                        <h3 class="font-medium text-gray-700 mb-3">¿Cómo te sientes hoy?</h3>
+                        
+                        <div class="flex justify-between mb-4">
+                            <button onclick="setMood(1)" class="emoji-btn mood-1 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                                😭
+                            </button>
+                            <button onclick="setMood(2)" class="emoji-btn mood-2 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                                😞
+                            </button>
+                            <button onclick="setMood(3)" class="emoji-btn mood-3 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                                😐
+                            </button>
+                            <button onclick="setMood(4)" class="emoji-btn mood-4 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                                😊
+                            </button>
+                            <button onclick="setMood(5)" class="emoji-btn mood-5 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                                😁
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="thoughts" class="block text-sm font-medium text-gray-700 mb-1">¿Quieres compartir algo más? (opcional)</label>
+                            <textarea id="thoughts" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        
+                        <button onclick="saveEntry()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition flex items-center justify-center">
+                            <i class="fas fa-save mr-2"></i> Guardar
+                        </button>
+                    </div>
+                    
+                    <!-- Mood Chart -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-medium text-gray-700 mb-3">Tu progreso emocional</h3>
+                        <canvas id="moodChart" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Entries History -->
+                <div class="mt-6">
+                    <h3 class="font-medium text-gray-700 mb-3">Tus registros anteriores</h3>
+                    <div id="entries-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- Entries will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Breathing Section -->
+            <section id="respira-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden transition-all duration-300">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-wind text-green-500 mr-2"></i> Ejercicios de Respiración
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Breathing Exercise -->
+                    <div class="bg-green-50 rounded-lg p-5">
+                        <h3 class="font-medium text-gray-700 mb-3">Respiración 4-7-8</h3>
+                        <p class="text-sm text-gray-600 mb-4">Esta técnica ayuda a reducir la ansiedad y promover la relajación.</p>
+                        
+                        <div id="breathing-container" class="flex flex-col items-center mb-4">
+                            <div id="breathing-circle" class="w-40 h-40 bg-green-200 rounded-full flex items-center justify-center mb-4 transition-all duration-1000">
+                                <span id="breathing-text" class="text-xl font-medium">Preparado</span>
+                            </div>
+                            <div id="breathing-instruction" class="text-center text-gray-700">
+                                Presiona "Comenzar" para iniciar el ejercicio
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button id="start-breathing" onclick="startBreathing()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition">
+                                <i class="fas fa-play mr-2"></i> Comenzar
+                            </button>
+                            <button id="reset-breathing" onclick="resetBreathing()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition" disabled>
+                                <i class="fas fa-redo mr-2"></i> Reiniciar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stress Relief -->
+                    <div class="bg-purple-50 rounded-lg p-5">
+                        <h3 class="font-medium text-gray-700 mb-3">Alivio Rápido</h3>
+                        <p class="text-sm text-gray-600 mb-4">Ejercicios rápidos para momentos de estrés.</p>
+                        
+                        <button onclick="quickBreathing()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg transition mb-3">
+                            <i class="fas fa-cloud-meatball mr-2"></i> Exhala tu estrés (1 min)
+                        </button>
+                        
+                        <button onclick="playCalmingSound()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition">
+                            <i class="fas fa-music mr-2"></i> Sonido relajante
+                        </button>
+                        
+                        <audio id="calming-sound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                        
+                        <div class="mt-4 p-3 bg-white rounded border border-purple-200">
+                            <h4 class="font-medium text-gray-700 mb-2">Consejo rápido:</h4>
+                            <p class="text-sm text-gray-600">"Cuando sientas ansiedad, concéntrate en nombrar 5 cosas que ves, 4 que tocas, 3 que escuchas, 2 que hueles y 1 que saboreas."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Emergency Section -->
+            <section id="emergencia-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden transition-all duration-300">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-life-ring text-red-500 mr-2"></i> Ayuda en Crisis
+                </h2>
+                
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                <span class="font-bold">Importante:</span> Esta aplicación no sustituye la ayuda profesional. Si estás en crisis o pensando en lastimarte, contacta inmediatamente a un profesional.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Emergency Contacts -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-phone-alt text-red-400 mr-2"></i> Líneas de Ayuda
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                                <div class="font-medium text-red-700">Teléfono de la Esperanza</div>
+                                <div class="text-gray-600 text-sm">717 003 717</div>
+                                <a href="tel:717003717" class="text-red-500 text-sm hover:underline">Llamar ahora</a>
+                            </div>
+                            
+                            <div class="p-3 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                                <div class="font-medium text-red-700">Suicidio: Teléfono de la Esperanza</div>
+                                <div class="text-gray-600 text-sm">914 590 055</div>
+                                <a href="tel:914590055" class="text-red-500 text-sm hover:underline">Llamar ahora</a>
+                            </div>
+                            
+                            <div class="p-3 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                                <div class="font-medium text-red-700">Emergencias</div>
+                                <div class="text-gray-600 text-sm">112</div>
+                                <a href="tel:112" class="text-red-500 text-sm hover:underline">Llamar ahora</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resources -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-link text-blue-400 mr-2"></i> Recursos en Línea
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <a href="https://www.telefonodelaesperanza.org" target="_blank" class="block p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                <div class="font-medium text-blue-700">Teléfono de la Esperanza</div>
+                                <div class="text-gray-600 text-sm">www.telefonodelaesperanza.org</div>
+                            </a>
+                            
+                            <a href="https://www.saludmental.org" target="_blank" class="block p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                <div class="font-medium text-blue-700">Confederación Salud Mental España</div>
+                                <div class="text-gray-600 text-sm">www.saludmental.org</div>
+                            </a>
+                            
+                            <a href="https://www.cruzroja.es" target="_blank" class="block p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                <div class="font-medium text-blue-700">Cruz Roja Española</div>
+                                <div class="text-gray-600 text-sm">www.cruzroja.es</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-yellow-500 text-xl mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                Recuerda que pedir ayuda es un acto de valentía. No estás solo/a en esto.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm mt-12">
+            <p>Conexión Interna - Bienestar Emocional</p>
+            <p class="mt-1">Esta aplicación no sustituye el consejo profesional. Si necesitas ayuda, por favor contacta a un especialista.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Global variables
+        let currentMood = null;
+        let entries = JSON.parse(localStorage.getItem('emotionalEntries')) || [];
+        let moodChart = null;
+        let breathingInterval = null;
+        let breathingPhase = 0;
+        const breathingPhases = ['Inhala... 4', 'Mantén... 7', 'Exhala... 8'];
+        const breathingTimes = [4000, 7000, 8000];
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show diary section by default
+            showSection('diario');
+            
+            // Load entries and render chart
+            renderEntries();
+            renderMoodChart();
+            
+            // Set up emoji buttons
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('ring-2', 'ring-blue-500', 'scale-125'));
+                    this.classList.add('ring-2', 'ring-blue-500', 'scale-125');
+                });
+            });
+        });
+        
+        // Navigation functions
+        function showSection(section) {
+            document.querySelectorAll('section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+            
+            document.getElementById(`${section}-section`).classList.remove('hidden');
+            
+            // If showing diary, refresh the chart
+            if (section === 'diario') {
+                renderMoodChart();
+            }
+        }
+        
+        // Diary functions
+        function setMood(mood) {
+            currentMood = mood;
+        }
+        
+        function saveEntry() {
+            if (!currentMood) {
+                alert('Por favor selecciona cómo te sientes hoy');
+                return;
+            }
+            
+            const thoughts = document.getElementById('thoughts').value;
+            const now = new Date();
+            
+            const entry = {
+                id: Date.now(),
+                mood: currentMood,
+                thoughts: thoughts,
+                date: now.toISOString(),
+                displayDate: formatDate(now)
+            };
+            
+            entries.unshift(entry);
+            localStorage.setItem('emotionalEntries', JSON.stringify(entries));
+            
+            // Reset form
+            document.getElementById('thoughts').value = '';
+            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('ring-2', 'ring-blue-500', 'scale-125'));
+            currentMood = null;
+            
+            // Update UI
+            renderEntries();
+            renderMoodChart();
+            
+            // Show confirmation
+            const confirmation = document.createElement('div');
+            confirmation.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center animate-bounce';
+            confirmation.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Registro guardado';
+            document.body.appendChild(confirmation);
+            
+            setTimeout(() => {
+                confirmation.remove();
+            }, 3000);
+        }
+        
+        function renderEntries() {
+            const entriesList = document.getElementById('entries-list');
+            entriesList.innerHTML = '';
+            
+            if (entries.length === 0) {
+                entriesList.innerHTML = '<p class="text-gray-500 text-center py-4">No hay registros todavía. ¡Empieza a registrar tus emociones!</p>';
+                return;
+            }
+            
+            entries.forEach(entry => {
+                const moodEmojis = ['😭', '😞', '😐', '😊', '😁'];
+                const emoji = moodEmojis[entry.mood - 1];
+                
+                const entryElement = document.createElement('div');
+                entryElement.className = 'bg-gray-50 p-3 rounded-lg border border-gray-200';
+                entryElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">${emoji}</span>
+                            <div>
+                                <div class="font-medium">${entry.displayDate}</div>
+                                ${entry.thoughts ? `<div class="text-gray-600 text-sm mt-1">${entry.thoughts}</div>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="deleteEntry(${entry.id})" class="text-gray-400 hover:text-red-500">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                
+                entriesList.appendChild(entryElement);
+            });
+        }
+        
+        function deleteEntry(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+                entries = entries.filter(entry => entry.id !== id);
+                localStorage.setItem('emotionalEntries', JSON.stringify(entries));
+                renderEntries();
+                renderMoodChart();
+            }
+        }
+        
+        function formatDate(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleDateString('es-ES', options);
+        }
+        
+        function renderMoodChart() {
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            
+            // Group entries by date (just day/month)
+            const groupedEntries = {};
+            entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const dateKey = `${date.getDate()}/${date.getMonth() + 1}`;
+                
+                if (!groupedEntries[dateKey]) {
+                    groupedEntries[dateKey] = {
+                        date: dateKey,
+                        moods: [],
+                        avgMood: 0
+                    };
+                }
+                
+                groupedEntries[dateKey].moods.push(entry.mood);
+            });
+            
+            // Calculate average mood for each day
+            const chartData = Object.values(groupedEntries).map(day => {
+                const sum = day.moods.reduce((a, b) => a + b, 0);
+                day.avgMood = sum / day.moods.length;
+                return day;
+            });
+            
+            // Sort by date (newest first)
+            chartData.sort((a, b) => {
+                const [aDay, aMonth] = a.date.split('/').map(Number);
+                const [bDay, bMonth] = b.date.split('/').map(Number);
+                return new Date(2023, aMonth - 1, aDay) - new Date(2023, bMonth - 1, bDay);
+            });
+            
+            // Limit to last 7 entries if there are many
+            const displayData = chartData.length > 7 ? chartData.slice(-7) : chartData;
+            
+            // Destroy previous chart if exists
+            if (moodChart) {
+                moodChart.destroy();
+            }
+            
+            // Create new chart
+            moodChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: displayData.map(day => day.date),
+                    datasets: [{
+                        label: 'Estado de ánimo promedio',
+                        data: displayData.map(day => day.avgMood),
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 0.8)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 1,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const emojis = ['😭', '😞', '😐', '😊', '😁'];
+                                    return emojis[value - 1] || value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Estado: ${context.raw.toFixed(1)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Breathing exercise functions
+        function startBreathing() {
+            document.getElementById('start-breathing').disabled = true;
+            document.getElementById('reset-breathing').disabled = false;
+            
+            const circle = document.getElementById('breathing-circle');
+            const text = document.getElementById('breathing-text');
+            const instruction = document.getElementById('breathing-instruction');
+            
+            breathingPhase = 0;
+            runBreathingCycle();
+            
+            breathingInterval = setInterval(runBreathingCycle, 19000); // Total cycle time (4+7+8)
+        }
+        
+        function runBreathingCycle() {
+            const circle = document.getElementById('breathing-circle');
+            const text = document.getElementById('breathing-text');
+            const instruction = document.getElementById('breathing-instruction');
+            
+            // Reset circle
+            circle.className = 'w-40 h-40 bg-green-200 rounded-full flex items-center justify-center mb-4 transition-all duration-1000';
+            text.textContent = 'Preparado';
+            instruction.textContent = 'Preparado para comenzar el ciclo de respiración';
+            
+            setTimeout(() => {
+                // Inhale phase
+                circle.classList.add('breathe-in');
+                text.textContent = 'INHALA';
+                instruction.textContent = breathingPhases[0];
+                
+                setTimeout(() => {
+                    // Hold phase
+                    circle.classList.remove('breathe-in');
+                    circle.classList.add('breathe-hold');
+                    text.textContent = 'MANTÉN';
+                    instruction.textContent = breathingPhases[1];
+                    
+                    setTimeout(() => {
+                        // Exhale phase
+                        circle.classList.remove('breathe-hold');
+                        circle.classList.add('breathe-out');
+                        text.textContent = 'EXHALA';
+                        instruction.textContent = breathingPhases[2];
+                        
+                        setTimeout(() => {
+                            // Reset for next cycle
+                            circle.classList.remove('breathe-out');
+                            text.textContent = 'Descanso';
+                            instruction.textContent = 'Descansa unos segundos antes del próximo ciclo';
+                        }, 8000);
+                    }, 7000);
+                }, 4000);
+            }, 1000);
+        }
+        
+        function resetBreathing() {
+            clearInterval(breathingInterval);
+            
+            const circle = document.getElementById('breathing-circle');
+            const text = document.getElementById('breathing-text');
+            const instruction = document.getElementById('breathing-instruction');
+            
+            circle.className = 'w-40 h-40 bg-green-200 rounded-full flex items-center justify-center mb-4';
+            text.textContent = 'Preparado';
+            instruction.textContent = 'Presiona "Comenzar" para iniciar el ejercicio';
+            
+            document.getElementById('start-breathing').disabled = false;
+            document.getElementById('reset-breathing').disabled = true;
+        }
+        
+        function quickBreathing() {
+            const circle = document.getElementById('breathing-circle');
+            const text = document.getElementById('breathing-text');
+            const instruction = document.getElementById('breathing-instruction');
+            
+            // Reset if another exercise is running
+            resetBreathing();
+            
+            // Quick 1-minute breathing (3 cycles)
+            let cycles = 0;
+            const quickInterval = setInterval(() => {
+                if (cycles >= 3) {
+                    clearInterval(quickInterval);
+                    circle.className = 'w-40 h-40 bg-green-200 rounded-full flex items-center justify-center mb-4';
+                    text.textContent = 'Completado';
+                    instruction.textContent = '¡Bien hecho! Esperamos que te sientas mejor.';
+                    return;
+                }
+                
+                // Quick cycle (shorter times)
+                circle.classList.add('breathe-in');
+                text.textContent = 'INHALA';
+                instruction.textContent = 'Inhala profundamente';
+                
+                setTimeout(() => {
+                    circle.classList.remove('breathe-in');
+                    circle.classList.add('breathe-out');
+                    text.textContent = 'EXHALA';
+                    instruction.textContent = 'Exhala todo el estrés';
+                    
+                    setTimeout(() => {
+                        circle.classList.remove('breathe-out');
+                        cycles++;
+                    }, 2000);
+                }, 2000);
+            }, 5000);
+            
+            // Show message
+            const confirmation = document.createElement('div');
+            confirmation.className = 'fixed bottom-4 right-4 bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center animate-bounce';
+            confirmation.innerHTML = '<i class="fas fa-cloud-meatball mr-2"></i> Tómate 1 minuto para respirar...';
+            document.body.appendChild(confirmation);
+            
+            setTimeout(() => {
+                confirmation.remove();
+            }, 60000);
+        }
+        
+        function playCalmingSound() {
+            const sound = document.getElementById('calming-sound');
+            sound.play();
+            
+            // Show message
+            const confirmation = document.createElement('div');
+            confirmation.className = 'fixed bottom-4 right-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center animate-bounce';
+            confirmation.innerHTML = '<i class="fas fa-volume-up mr-2"></i> Sonido relajante activado';
+            document.body.appendChild(confirmation);
+            
+            setTimeout(() => {
+                confirmation.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
